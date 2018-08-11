@@ -27,3 +27,8 @@ body {
     margin: 0px;
     padding: 0px;
 }
+
+.__MOVING_SHAPE {
+    background-color: #00F;
+    border-radius: solid #000 1px;
+}

@@ -1,4 +1,6 @@
+import { IPoint } from "./Point";
 import Row from "./Row";
+import Shape from "./Shape";
 import Tile from "./Tile";
 
 export default class Game {
@@ -24,4 +26,13 @@ export default class Game {
     }
 
     private rows: Row[] = [];
+    private shape?: Shape = null;
+
+    public newShape(): void {
+        this.shape = Shape.createShape([this.getTile({ x: 5, y: 0 })]);
+    }
+
+    private getTile(point: IPoint): Tile {
+        return this.rows[point.y].tiles[point.x];
+    }
 }

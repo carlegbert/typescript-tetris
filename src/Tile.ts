@@ -4,4 +4,8 @@ export default class Tile {
   constructor(element: HTMLElement) {
     this.element = element;
   }
+
+  public changeState(newState: string): void {
+    this.element.className = `tile ${newState}`;
+  }
 }
