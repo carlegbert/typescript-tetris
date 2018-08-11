@@ -7,20 +7,10 @@ import Tile from "./Tile";
 export default class Game {
     public static createGame(): Game {
         const game: Game = new Game();
-        const gameBoard: HTMLElement = document.getElementById("game");
         for (let y: number = 0; y < HEIGHT; y++) {
-            const rowElement: HTMLElement = document.createElement("div");
-            rowElement.className = "row";
-            gameBoard.appendChild(rowElement);
-            const row = new Row(rowElement);
+            const row = game.createRow(y);
             game.rows.push(row);
-            for (let x: number = 0; x < WIDTH; x++) {
-                const tileElement: HTMLElement = document.createElement("div");
-                tileElement.className = "tile";
-                rowElement.appendChild(tileElement);
-                const tile = new Tile(tileElement, new Point(x, y));
-                row.addTile(tile);
-            }
+            game.gameBoard.appendChild(row.element);
         }
 
         return game;
@@ -29,13 +19,29 @@ export default class Game {
     private rows: Row[] = [];
     private shape?: Shape = null;
     private clock?: any;
+    private gameBoard: HTMLElement = document.getElementById("game");
 
     public start(): void {
         this.shape = Shape.createShape([this.getTile(5, 0)]);
-        this.clock = setInterval(this.playFrame.bind(this), 100);
+        this.clock = setInterval(this.playFrame.bind(this), 50);
         document.onkeydown = (event) => {
             this.handleKeypress(event);
         };
+    }
+
+    private createRow(idx: number): Row {
+        const rowElement: HTMLElement = document.createElement("div");
+        rowElement.className = "row";
+        const row = new Row(rowElement);
+        for (let x: number = 0; x < WIDTH; x++) {
+            const tileElement: HTMLElement = document.createElement("div");
+            tileElement.className = "tile";
+            rowElement.appendChild(tileElement);
+            const tile = new Tile(tileElement, new Point(x, idx));
+            row.addTile(tile);
+        }
+
+        return row;
     }
 
     private createShape(): void {
@@ -83,9 +89,36 @@ export default class Game {
     private descendShape(): void {
         const shapeDidDescend = this.moveShape(DIRECTIONS.DOWN);
         if (!shapeDidDescend) {
-            this.shape.tiles.forEach((t) => t.changeState(TILE_STATES.RESTING_SHAPE));
+            this.arrestShape();
             this.createShape();
         }
+    }
+
+    private arrestShape(): void {
+        this.shape.tiles.forEach((t) => t.changeState(TILE_STATES.RESTING_SHAPE));
+        const rowsToCheck: number[] = this.shape.tiles
+            .map((tile) => tile.point.y)
+            .filter((y, idx, arr) => arr.indexOf(y) === idx)
+            .sort((a, b) => b - a);
+        const rowsToRemove: number[] = rowsToCheck
+            .filter((idx) => this.rows[idx].isFull());
+
+        if (rowsToRemove.length === 0) {
+            return;
+        }
+
+        rowsToRemove.forEach((idx) => {
+            this.rows[idx].element.remove();
+            this.rows = [ ...this.rows.slice(0, idx), ...this.rows.slice(idx + 1)];
+        });
+
+        for (let idx: number = 0; idx < rowsToRemove.length; idx += 1) {
+            const row = this.createRow(idx);
+            this.rows.unshift(row);
+            this.gameBoard.insertBefore(row.element, this.rows[1].element);
+        }
+
+        this.rows.forEach((row, y) => row.updateYIndex(y));
     }
 
     private handleKeypress(event: KeyboardEvent) {
