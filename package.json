@@ -4,6 +4,7 @@
   "description": "tetris written in typescript.",
   "main": "src/index.js",
   "scripts": {
+    "lint": "tslint src/**/*.ts",
     "start": "tsc && parcel src/index.html",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
