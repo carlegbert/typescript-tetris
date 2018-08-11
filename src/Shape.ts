@@ -13,4 +13,8 @@ export default class Shape {
     constructor(tiles: Tile[]) {
         this.tiles = tiles;
     }
+
+    public overlaps(otherShape: Shape) {
+        return this.tiles.some((t) => otherShape.tiles.includes(t));
+    }
 }

@@ -3,7 +3,6 @@ import "./index.css";
 
 (() => {
 
-const game = Game.createGame();
-game.newShape();
+Game.createGame().start();
 
 })();

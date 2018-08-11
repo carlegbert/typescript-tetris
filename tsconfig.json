@@ -3,7 +3,11 @@
     "compilerOptions": {
         "noImplicitAny": true,
         "removeComments": true,
-        "sourceMap": true
+        "sourceMap": true,
+        "lib": [
+            "dom",
+            "es7"
+        ]
     },
     "include": [
         "src/**/*"

@@ -32,3 +32,8 @@ body {
     background-color: #00F;
     border-radius: solid #000 1px;
 }
+
+.__RESTING_SHAPE {
+    background-color: #F00;
+    border-radius: solid #000 1px;
+}
