@@ -1,4 +1,7 @@
-import { IDirection } from "./constants";
+export interface IDirection {
+    x: number;
+    y: number;
+}
 
 export default class Point {
     public x: number;

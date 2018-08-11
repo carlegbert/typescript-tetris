@@ -1,5 +1,5 @@
-import { DIRECTIONS, HEIGHT, TILE_STATES, WIDTH } from "./constants";
-import Point from "./Point";
+import { DIRECTIONS, HEIGHT, KEYS, TILE_STATES, WIDTH } from "./constants";
+import Point, { IDirection } from "./Point";
 import Row from "./Row";
 import Shape from "./Shape";
 import Tile from "./Tile";
@@ -32,7 +32,10 @@ export default class Game {
 
     public start(): void {
         this.shape = Shape.createShape([this.getTile(5, 0)]);
-        this.clock = setInterval(this.playFrame.bind(this), 10);
+        this.clock = setInterval(this.playFrame.bind(this), 100);
+        document.onkeydown = (event) => {
+            this.handleKeypress(event);
+        };
     }
 
     private createShape(): void {
@@ -55,26 +58,50 @@ export default class Game {
     }
 
     private playFrame(): void {
-        const tilesBelowShape = this.getNextShapeLocation();
-        if (tilesBelowShape) {
-            this.shape.tiles.forEach((t) => t.changeState(TILE_STATES.EMPTY));
-            this.shape.tiles = tilesBelowShape;
-            this.shape.tiles.forEach((t) => t.changeState(TILE_STATES.MOVING_SHAPE));
-        } else {
-            this.shape.tiles.forEach((t) => t.changeState(TILE_STATES.RESTING_SHAPE));
-            this.createShape();
-        }
+        this.descendShape();
     }
 
-    private getNextShapeLocation(): Tile[] | void {
+    private moveShape(direction: IDirection): boolean {
         const newTileLocations: Tile[] = [];
         this.shape.tiles.forEach((tile) => {
-            const newLocation = tile.point.movePoint(DIRECTIONS.DOWN);
+            const newLocation = tile.point.movePoint(direction);
             const tileAtLocation = this.getTile(newLocation.x, newLocation.y);
             if (tileAtLocation && tileAtLocation.state !== TILE_STATES.RESTING_SHAPE) {
                 newTileLocations.push(tileAtLocation);
             }
         });
-        return newTileLocations.length > 0 && newTileLocations;
+        if (newTileLocations.length === 0) {
+            return false;
+        }
+
+        this.shape.tiles.forEach((t) => t.changeState(TILE_STATES.EMPTY));
+        this.shape.tiles = newTileLocations;
+        this.shape.tiles.forEach((t) => t.changeState(TILE_STATES.MOVING_SHAPE));
+        return true;
+    }
+
+    private descendShape(): void {
+        const shapeDidDescend = this.moveShape(DIRECTIONS.DOWN);
+        if (!shapeDidDescend) {
+            this.shape.tiles.forEach((t) => t.changeState(TILE_STATES.RESTING_SHAPE));
+            this.createShape();
+        }
+    }
+
+    private handleKeypress(event: KeyboardEvent) {
+        switch (event.keyCode) {
+            case KEYS.DOWN:
+                event.preventDefault();
+                this.moveShape(DIRECTIONS.DOWN);
+                break;
+            case KEYS.LEFT:
+                event.preventDefault();
+                this.moveShape(DIRECTIONS.LEFT);
+                break;
+            case KEYS.RIGHT:
+                event.preventDefault();
+                this.moveShape(DIRECTIONS.RIGHT);
+                break;
+        }
     }
 }
