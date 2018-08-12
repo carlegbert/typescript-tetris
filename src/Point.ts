@@ -17,4 +17,8 @@ export default class Point {
         const y = this.y + direction.y;
         return new Point(x, y);
     }
+
+    public equals(otherPoint: Point): boolean {
+        return (this.x === otherPoint.x && this.y === otherPoint.y);
+    }
 }

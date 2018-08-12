@@ -1,20 +1,18 @@
-import { TILE_STATES } from "./constants";
-import Tile from "./Tile";
+import Point from "./Point";
 
 export default class Shape {
-    public static createShape(tiles: Tile[]): Shape {
-        const shape: Shape = new Shape(tiles);
-        shape.tiles.forEach((t) => t.changeState(TILE_STATES.MOVING_SHAPE));
+    public static createShape(points: Point[]): Shape {
+        const shape: Shape = new Shape(points);
         return shape;
     }
 
-    public tiles: Tile[] = [];
+    public points: Point[] = [];
 
-    constructor(tiles: Tile[]) {
-        this.tiles = tiles;
+    constructor(points: Point[]) {
+        this.points = points;
     }
 
     public overlaps(otherShape: Shape) {
-        return this.tiles.some((t) => otherShape.tiles.includes(t));
+        return this.points.some((point) => otherShape.points.some((otherPoint) => point.equals(otherPoint)));
     }
 }
