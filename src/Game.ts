@@ -23,6 +23,10 @@ export default class Game {
 
     public start(): void {
         this.createShape();
+        this.shape.points
+            .filter((p) => p.y !== -1)
+            .map((p) => this.getTile(p.x, p.y))
+            .forEach((t) => t.changeState(TILE_STATES.MOVING_SHAPE));
         this.clock = setInterval(this.playFrame.bind(this), 50);
         document.onkeydown = (event) => {
             this.handleKeypress(event);
@@ -45,11 +49,12 @@ export default class Game {
     }
 
     private createShape(): void {
-        const newShape = Shape.createShape([new Point(5, 0)]);
-        if (this.shape && newShape.overlaps(this.shape)) {
+        this.shape = Shape.createShape();
+        const shapeCanSpawn = this.shape.points
+            .filter((p) => p.y === 0)
+            .every((p) => this.getTile(p.x, p.y).state !== TILE_STATES.RESTING_SHAPE);
+        if (!shapeCanSpawn) {
             this.loseGame();
-        } else {
-            this.shape = newShape;
         }
     }
 
@@ -76,7 +81,7 @@ export default class Game {
                 newShapePoints.push(tileAtLocation.point);
             }
         });
-        if (newShapePoints.length === 0) {
+        if (newShapePoints.length !== this.shape.points.length) {
             return false;
         }
 
@@ -102,9 +107,11 @@ export default class Game {
 
     private arrestShape(): void {
         this.shape.points
+            .filter((p) => p.y !== -1)
             .map((p) => this.getTile(p.x, p.y))
             .forEach((t) => t.changeState(TILE_STATES.RESTING_SHAPE));
         const rowsToCheck: number[] = this.shape.points
+            .filter((p) => p.y !== -1)
             .map((point) => point.y)
             .filter((y, idx, arr) => arr.indexOf(y) === idx)
             .sort((a, b) => b - a);
